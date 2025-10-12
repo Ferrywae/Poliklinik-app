@@ -4,67 +4,58 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use App\Models\User;
 
 class AuthController extends Controller
 {
-    // Tampilkan halaman login
-    public function showLogin()
-    {
-        return view('auth.login');
-    }
+    public function showLogin(){ return view('auth.login'); }
+    public function showRegister(){ return view('auth.register'); }
 
-    // Proses login
     public function login(Request $request)
     {
-        $credentials = $request->only('email', 'password');
+        $credentials = $request->validate([
+            'email'    => ['required','email'],
+            'password' => ['required'],
+        ]);
 
         if (Auth::attempt($credentials)) {
+            $request->session()->regenerate();
             $user = Auth::user();
-
-            // Redirect sesuai role
-            if ($user->role === 'admin') {
-                return redirect()->route('admin.dashboard');
-            } elseif ($user->role === 'dokter') {
-                return redirect()->route('dokter.dashboard');
-            } else {
-                return redirect()->route('pasien.dashboard');
-            }
+            session()->flash('success','Selamat datang, <b>'.e($user->nama ?? $user->email).'</b>!');
+            return match ($user->role) {
+                'admin'  => redirect()->route('admin.dashboard'),
+                'dokter' => redirect()->route('dokter.dashboard'),
+                default  => redirect()->route('pasien.dashboard'),
+            };
         }
 
-        return back()->withErrors(['email' => 'Email atau Password Salah!']);
+        return back()->withErrors(['email'=>'Email atau password salah.'])->onlyInput('email');
     }
 
-    // Tampilkan halaman register
-    public function showRegister()
-    {
-        return view('auth.register');
-    }
-
-    // Proses register
     public function register(Request $request)
     {
         $request->validate([
-            'nama' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|confirmed|min:6',
+            'nama'     => ['required','string','max:255'],
+            'email'    => ['required','email','unique:users,email'],
+            'password' => ['required','confirmed','min:6'],
         ]);
 
         User::create([
             'nama' => $request->nama,
-            'email' => $request->email,
+            'email'=> $request->email,
             'password' => Hash::make($request->password),
-            'role' => 'pasien', // default
+            'role' => 'pasien',
         ]);
 
-        return redirect()->route('login')->with('success', 'Registrasi berhasil, silakan login.');
+        return redirect()->route('login')->with('success','Registrasi berhasil, silakan login.');
     }
 
-    // Logout
-    public function logout()
+    public function logout(Request $request)
     {
         Auth::logout();
-        return redirect()->route('login');
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect()->route('login')->with('status','Anda telah keluar.');
     }
 }
