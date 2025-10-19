@@ -1,3 +1,9 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
 class DetailPeriksa extends Model
 {
     protected $table = 'detail_periksa';
@@ -15,3 +21,4 @@ class DetailPeriksa extends Model
         return $this->belongsTo(Obat::class, 'id_obat');
     }
 }
+

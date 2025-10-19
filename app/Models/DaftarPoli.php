@@ -1,3 +1,9 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
 class DaftarPoli extends Model
 {
     protected $table = 'daftar_poli';
@@ -21,3 +27,4 @@ class DaftarPoli extends Model
         return $this->hasMany(Periksa::class, 'id_daftar_poli');
     }
 }
+

@@ -1,3 +1,9 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
 class Periksa extends Model
 {
     protected $table = 'periksa';
@@ -17,3 +23,4 @@ class Periksa extends Model
         return $this->hasMany(DetailPeriksa::class, 'id_periksa');
     }
 }
+
