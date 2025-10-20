@@ -64,3 +64,6 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Tugas 3 - CRUD Poli
+- Controller, routes, views admin
+- Sudah sinkron dengan BengKod-main
