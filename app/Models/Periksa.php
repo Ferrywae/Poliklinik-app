@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\DaftarPoli;
+use App\Models\DetailPeriksa;
 
 class Periksa extends Model
 {
@@ -23,4 +25,3 @@ class Periksa extends Model
         return $this->hasMany(DetailPeriksa::class, 'id_periksa');
     }
 }
-

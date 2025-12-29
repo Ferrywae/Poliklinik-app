@@ -6,9 +6,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\Poli;
+use App\Models\JadwalPeriksa;
 
 class User extends Authenticatable
 {
+    use HasFactory, Notifiable;
+
     protected $fillable = [
         'nama',
         'alamat',
@@ -42,4 +46,3 @@ class User extends Authenticatable
         return $this->hasMany(JadwalPeriksa::class, 'id_dokter');
     }
 }
-

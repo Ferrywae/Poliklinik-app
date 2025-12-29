@@ -39,24 +39,18 @@ class DokterController extends Controller
             'alamat' => 'required|string',
             'no_ktp' => 'required|string|max:16|unique:users,no_ktp',
             'no_hp' => 'required|string|max:15',
-            'id_poli' => 'required|string|exists:poli,id', // intinya id nya ada di poli
-            'email' => 'required|string|unique:users,email',
+            'id_poli' => 'required|exists:poli,id',
+            'email' => 'required|string|email|unique:users,email',
             'password' => 'required|string|min:6',
         ]);
-        // dd($data);
 
-        User::create([
-            'nama' => $request->nama,
-            'alamat' => $request->alamat,
-            'no_ktp' => $request->no_ktp,
-            'no_hp' => $request->no_hp,
-            'id_poli' => $request->id_poli,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role' => 'dokter',
-        ]);
+        // ✅ pakai $data biar sesuai hasil validate (lebih aman)
+        $data['password'] = Hash::make($data['password']);
+        $data['role'] = 'dokter';
 
-        return redirect()->route('dokter.index')
+        User::create($data);
+
+        return redirect()->route('dokters.index')
             ->with('message', 'Data Dokter Berhasil di tambahkan')
             ->with('type', 'success');
     }
@@ -72,35 +66,40 @@ class DokterController extends Controller
 
     /**
      * Update the specified resource in storage.
-     * $dokter adalah route model binding jadi yang harus nya kita buat
-     * $dokter = User::findOrFail($id); kita bisa membuat menjadi parameter, 
-     * namun jika menggunakan cara tersebut kita route nya tidak bisa admin/dokter{id}/edit namun 
-     * seperi admin/dokter/{dokter}/edit
      */
-
     public function update(Request $request, User $dokter)
     {
         $request->validate([
-            
-
+            'nama' => 'required|string|max:255',
+            'alamat' => 'required|string',
+            'no_ktp' => 'required|string|max:16|unique:users,no_ktp,' . $dokter->id,
+            'no_hp' => 'required|string|max:15',
+            'id_poli' => 'required|exists:poli,id',
+            'email' => 'required|string|email|unique:users,email,' . $dokter->id,
+            'password' => 'nullable|string|min:6',
         ]);
 
         $updateData = [
-           
-
+            'nama' => $request->nama,
+            'alamat' => $request->alamat,
+            'no_ktp' => $request->no_ktp,
+            'no_hp' => $request->no_hp,
+            'id_poli' => $request->id_poli,
+            'email' => $request->email,
+            'role' => 'dokter', // ✅ jaga biar tetap dokter
         ];
 
-        //update password bila password disii
+        // update password bila password disii
         if ($request->filled('password')) {
-            $dokter->password = Hash::make($request->password);
+            $updateData['password'] = Hash::make($request->password);
         }
 
-        //disimpan
+        // disimpan
         $dokter->update($updateData);
 
-        return redirect()->route('dokter.index')
+        return redirect()->route('dokters.index')
             ->with('message', 'Data Dokter Berhasil di ubah')
-            ->with('type','success');
+            ->with('type', 'success');
     }
 
     /**
@@ -109,7 +108,8 @@ class DokterController extends Controller
     public function destroy(User $dokter)
     {
         $dokter->delete();
-        return redirect()->route('dokter.index')
+
+        return redirect()->route('dokters.index')
             ->with('message', 'Data Dokter Berhasil dihapus')
             ->with('type', 'success');
     }
